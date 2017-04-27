@@ -1,15 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/thoj/go-ircevent"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 func connect_irc() (irccon *irc.Connection, err error) {
-	const server = "irc.freenode.net:7000"
-	const ircnick = "dkanjus1"
+	server := os.Getenv("IRC_SERVER")
+	ircnick := os.Getenv("IRC_NICK")
 
 	irccon = irc.IRC(ircnick, "IRCTestSSL")
 	irccon.VerboseCallbackHandler = false
@@ -17,7 +22,10 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	irccon.UseTLS = true
 	irccon.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	irccon.AddCallback("PRIVMSG", func(e *irc.Event) {
-		send_to_slack(e.Nick, e.Message())
+		err = send_to_slack(e.Nick, e.Message())
+		if err != nil {
+			fmt.Printf("Err %s", err)
+		}
 	})
 	err = irccon.Connect(server)
 
@@ -26,25 +34,29 @@ func connect_irc() (irccon *irc.Connection, err error) {
 
 func send_to_slack(from string, text string) (err error) {
 	slack_payload := slack_message{
-		Text: text,
-		Channel: "",
+		Text:     text,
 		Username: from,
-		Icon: ":nyx:",
 	}
 	payload, err := json.Marshal(slack_payload)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(string(payload))
-	return nil
+	resp, err := http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(payload))
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		err = errors.New(string(body))
+	}
+
+	return err
 }
 
 type slack_message struct {
-	Text string `json:"text"`
-	Channel string `json:"channel"`
+	Text     string `json:"text"`
+	Channel  string `json:"channel"`
 	Username string `json:"username"`
-	Icon string `json:"icon_emoji"`
+	Icon     string `json:"icon_emoji"`
 }
 
 func main() {
