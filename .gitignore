@@ -1,3 +1,4 @@
 vendor/
 zkill-cli
 glide.lock
+*.txt

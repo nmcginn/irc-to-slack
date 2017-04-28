@@ -16,7 +16,8 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	server := os.Getenv("IRC_SERVER")
 	ircnick := os.Getenv("IRC_NICK")
 
-	irccon = irc.IRC(ircnick, "IRCTestSSL")
+	irccon = irc.IRC(ircnick, ircnick)
+	irccon.Password = os.Getenv("IRC_PASSWORD")
 	irccon.VerboseCallbackHandler = false
 	irccon.Debug = false
 	irccon.UseTLS = true
