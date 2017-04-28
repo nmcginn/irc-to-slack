@@ -23,9 +23,12 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	irccon.UseTLS = true
 	irccon.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	irccon.AddCallback("PRIVMSG", func(e *irc.Event) {
-		err = send_to_slack(e.Nick, e.Message())
-		if err != nil {
-			fmt.Printf("Err %s", err)
+		// cut down on the extra spam a bit
+		if e.Nick == "FleetBot" {
+			err = send_to_slack(e.Nick, e.Message())
+			if err != nil {
+				fmt.Printf("Err %s", err)
+			}
 		}
 	})
 	err = irccon.Connect(server)
