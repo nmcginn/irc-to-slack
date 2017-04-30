@@ -34,8 +34,9 @@ func connect_irc() (irccon *irc.Connection, err error) {
 		}
 	})
 
-	irccon.AddCallback("PING", func(e *irc.Event) {
+	irccon.AddCallback("NOTICE", func(e *irc.Event) {
 		err = send_to_slack(e.Nick, e.Message())
+		fmt.Printf("NOTICE %s: %s\n", e.Nick, e.Message())
 		if err != nil {
 			fmt.Printf("Err %s", err)
 		}
