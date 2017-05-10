@@ -23,8 +23,14 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	irccon.UseTLS = true
 	irccon.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
+	irccon.AddCallback("001", func(e *irc.Event) {
+		// TODO: join list of channels
+		//irccon.Join()
+		fmt.Println("Connected")
+	})
+
 	irccon.AddCallback("PRIVMSG", func(e *irc.Event) {
-		if e.Nick == "FleetBot" {
+		if e.Nick == "sphere" {
 			err = send_to_slack(e.Nick, e.Message())
 			if err != nil {
 				fmt.Printf("Err %s", err)
@@ -35,7 +41,7 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	})
 
 	irccon.AddCallback("NOTICE", func(e *irc.Event) {
-		err = send_to_slack(e.Nick, e.Message())
+		//err = send_to_slack(e.Nick, e.Message())
 		fmt.Printf("NOTICE %s: %s\n", e.Nick, e.Message())
 		if err != nil {
 			fmt.Printf("Err %s", err)
