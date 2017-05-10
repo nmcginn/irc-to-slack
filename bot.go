@@ -26,7 +26,6 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	irccon.AddCallback("001", func(e *irc.Event) {
 		// TODO: join list of channels
 		//irccon.Join()
-		fmt.Println("Connected")
 	})
 
 	irccon.AddCallback("PRIVMSG", func(e *irc.Event) {
@@ -41,7 +40,6 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	})
 
 	irccon.AddCallback("NOTICE", func(e *irc.Event) {
-		//err = send_to_slack(e.Nick, e.Message())
 		fmt.Printf("NOTICE %s: %s\n", e.Nick, e.Message())
 		if err != nil {
 			fmt.Printf("Err %s", err)
