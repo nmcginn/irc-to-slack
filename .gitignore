@@ -1,4 +1,5 @@
 vendor/
 ping-bot
+ping-bot.exe
 glide.lock
 *.txt
