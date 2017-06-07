@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func connect_irc() (irccon *irc.Connection, err error) {
@@ -23,10 +24,7 @@ func connect_irc() (irccon *irc.Connection, err error) {
 	irccon.UseTLS = true
 	irccon.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
-	irccon.AddCallback("001", func(e *irc.Event) {
-		// TODO: join list of channels
-		//irccon.Join()
-	})
+	irccon.AddCallback("001", func(e *irc.Event) {})
 
 	irccon.AddCallback("PRIVMSG", func(e *irc.Event) {
 		if e.Nick == "sphere" {
@@ -53,7 +51,7 @@ func connect_irc() (irccon *irc.Connection, err error) {
 
 func send_to_slack(from string, text string) (err error) {
 	slack_payload := slack_message{
-		Text:     text,
+		Text:     "@here " + text,
 		Username: from,
 	}
 	payload, err := json.Marshal(slack_payload)
@@ -61,7 +59,12 @@ func send_to_slack(from string, text string) (err error) {
 		return err
 	}
 
-	resp, err := http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(payload))
+	var resp *http.Response
+	if strings.Contains(text, "supers") || strings.Contains(text, "supercaps") || strings.Contains(text, "titans") {
+		resp, err = http.Post(os.Getenv("WEBHOOK_URL_S"), "application/json", bytes.NewBuffer(payload))
+	} else {
+		resp, err = http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(payload))
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
