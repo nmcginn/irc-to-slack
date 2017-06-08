@@ -58,7 +58,7 @@ func send_to_slack(from string, text string) (err error) {
 		prev_msg = text
 	}
 	slack_payload := slack_message{
-		Text:     "@here " + text,
+		Text:     "<!here> " + text,
 		Username: from,
 	}
 	payload, err := json.Marshal(slack_payload)
