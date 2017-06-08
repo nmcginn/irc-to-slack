@@ -1,5 +1,5 @@
 vendor/
-ping-bot
-ping-bot.exe
+irc-to-slack
+irc-to-slack.exe
 glide.lock
 *.txt
