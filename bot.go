@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+var prev_msg string
+
 func connect_irc() (irccon *irc.Connection, err error) {
 	server := os.Getenv("IRC_SERVER")
 	ircnick := os.Getenv("IRC_NICK")
@@ -50,6 +52,11 @@ func connect_irc() (irccon *irc.Connection, err error) {
 }
 
 func send_to_slack(from string, text string) (err error) {
+	if prev_msg == text {
+		return nil
+	} else {
+		prev_msg = text
+	}
 	slack_payload := slack_message{
 		Text:     "@here " + text,
 		Username: from,
@@ -82,6 +89,7 @@ type slack_message struct {
 }
 
 func main() {
+	prev_msg = ""
 	irccon, err := connect_irc()
 	if err != nil {
 		fmt.Printf("Err %s", err)
