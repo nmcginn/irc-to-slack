@@ -67,7 +67,7 @@ func send_to_slack(from string, text string) (err error) {
 	}
 
 	var resp *http.Response
-	if strings.Contains(text, "supers") || strings.Contains(text, "supercaps") || strings.Contains(text, "titans") {
+	if strings.Contains(text, "[supers]") || strings.Contains(text, "[supercaps]") || strings.Contains(text, "[titans]") {
 		resp, err = http.Post(os.Getenv("WEBHOOK_URL_S"), "application/json", bytes.NewBuffer(payload))
 	} else {
 		resp, err = http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(payload))
